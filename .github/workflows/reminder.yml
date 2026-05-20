@@ -1,10 +1,9 @@
 name: Murad Jewellery Eslatmalar
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 3 * * *'
-    - cron: '0 9 * * 1'
-  workflow_dispatch:
 
 jobs:
   daily-reminder:
@@ -21,123 +20,52 @@ jobs:
 
         run: |
 
-          ORDERS=$(curl -s \
+          RESPONSE=$(curl -s \
             "${SUPABASE_URL}/rest/v1/orders?select=*&status=neq.topshirildi" \
             -H "apikey: ${SUPABASE_KEY}" \
             -H "Authorization: Bearer ${SUPABASE_KEY}")
 
-          echo "$ORDERS" > orders.json
+          echo "$RESPONSE" > orders.json
 
           python3 << 'EOF'
-
 import json
 import urllib.request
-from datetime import datetime, timedelta
 import os
+from datetime import datetime
 
 with open("orders.json", "r", encoding="utf-8") as f:
     orders = json.load(f)
 
-BOT_TOKEN = os.environ["BOT_TOKEN"]
-CHAT_ID = os.environ["CHAT_ID"]
-
 today = datetime.utcnow().strftime("%Y-%m-%d")
-tomorrow = (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%d")
-
-def send_message(message):
-    data = json.dumps({
-        "chat_id": CHAT_ID,
-        "text": message,
-        "parse_mode": "Markdown"
-    }).encode("utf-8")
-
-    req = urllib.request.Request(
-        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-        data=data,
-        headers={"Content-Type": "application/json"}
-    )
-
-    urllib.request.urlopen(req)
 
 today_orders = [
     o for o in orders
     if o.get("due_date") == today
 ]
 
-tomorrow_orders = [
-    o for o in orders
-    if o.get("due_date") == tomorrow
-]
-
-late_orders = [
-    o for o in orders
-    if o.get("due_date") and o.get("due_date") < today
-]
-
-ready_orders = [
-    o for o in orders
-    if o.get("status") == "tayyor"
-]
-
-msg = f"💍 *Murad Jewellery — Eslatma*\n📅 {today}\n\n"
+msg = f"💍 Murad Jewellery\n📅 {today}\n\n"
 
 if today_orders:
-    msg += f"🔴 *BUGUN TOPSHIRISH ({len(today_orders)} ta):*\n"
+    msg += "🔴 Bugungi topshiruvlar:\n"
 
     for o in today_orders:
         client = o.get("client", "Noma'lum")
-        metal = o.get("metal_type", "")
-        gram = o.get("metal_gram", "")
-        phone = o.get("phone", "")
+        msg += f"• {client}\n"
 
-        msg += f"• *{client}*"
+else:
+    msg += "✅ Bugun topshiruv yo'q"
 
-        if metal:
-            msg += f" | {metal}"
+data = json.dumps({
+    "chat_id": os.environ["CHAT_ID"],
+    "text": msg
+}).encode("utf-8")
 
-        if gram:
-            msg += f" {gram}g"
+req = urllib.request.Request(
+    f"https://api.telegram.org/bot{os.environ['BOT_TOKEN']}/sendMessage",
+    data=data,
+    headers={"Content-Type": "application/json"}
+)
 
-        msg += "\n"
-
-        if phone:
-            msg += f"  📞 {phone}\n"
-
-    msg += "\n"
-
-if tomorrow_orders:
-    msg += f"🟡 *ERTAGA ({len(tomorrow_orders)} ta):*\n"
-
-    for o in tomorrow_orders:
-        client = o.get("client", "Noma'lum")
-        msg += f"• *{client}*\n"
-
-    msg += "\n"
-
-if late_orders:
-    msg += f"⚠️ *KECHIKKAN ({len(late_orders)} ta):*\n"
-
-    for o in late_orders:
-        client = o.get("client", "Noma'lum")
-        due = o.get("due_date", "")
-        msg += f"• *{client}* — {due}\n"
-
-    msg += "\n"
-
-if ready_orders:
-    msg += f"✅ *TAYYOR KUTMOQDA ({len(ready_orders)} ta):*\n"
-
-    for o in ready_orders:
-        client = o.get("client", "Noma'lum")
-        msg += f"• *{client}*\n"
-
-    msg += "\n"
-
-if not today_orders and not tomorrow_orders and not late_orders:
-    msg += "✅ Yaqin kunlarda topshirish yo'q\n\n"
-
-msg += "🌐 murodzar.netlify.app"
-
-send_message(msg)
+urllib.request.urlopen(req)
 
 EOF
