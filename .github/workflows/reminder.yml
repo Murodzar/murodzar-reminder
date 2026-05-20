@@ -1,70 +1,18 @@
-name: Murad Jewellery Eslatmalar
+name: Telegram Reminder
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 3 * * *'
 
 jobs:
-  daily-reminder:
+  send-message:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Send Telegram Reminder
-
-        env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-
+      - name: Send Telegram Message
         run: |
-
-          RESPONSE=$(curl -s \
-            "${SUPABASE_URL}/rest/v1/orders?select=*&status=neq.topshirildi" \
-            -H "apikey: ${SUPABASE_KEY}" \
-            -H "Authorization: Bearer ${SUPABASE_KEY}")
-
-          echo "$RESPONSE" > orders.json
-
-          python3 << 'EOF'
-
-          import json
-          import urllib.request
-          import os
-          from datetime import datetime
-
-          with open("orders.json", "r", encoding="utf-8") as f:
-              orders = json.load(f)
-
-          today = datetime.utcnow().strftime("%Y-%m-%d")
-
-          today_orders = [
-              o for o in orders
-              if o.get("due_date") == today
-          ]
-
-          msg = f"💍 Murad Jewellery\n📅 {today}\n\n"
-
-          if today_orders:
-              msg += "🔴 Bugungi topshiruvlar:\n"
-
-              for o in today_orders:
-                  client = o.get("client", "Noma'lum")
-                  msg += f"• {client}\n"
-
-          else:
-              msg += "✅ Bugun topshiruv yo'q"
-
-          data = json.dumps({
-              "chat_id": os.environ["CHAT_ID"],
-              "text": msg
-          }).encode("utf-8")
-
-          req = urllib.request.Request(
-              f"https://api.telegram.org/bot{os.environ['BOT_TOKEN']}/sendMessage",
-              data=data,
-              headers={"Content-Type": "application/json"}
-          )
-
-          urllib.request.urlopen(req)
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendMessage \
+          -H "Content-Type: application/json" \
+          -d '{
+            "chat_id": "${{ secrets.CHAT_ID }}",
+            "text": "GitHub Actions ishladi"
+          }'
