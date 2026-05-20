@@ -68,4 +68,3 @@ jobs:
           )
 
           urllib.request.urlopen(req)
-EOF
