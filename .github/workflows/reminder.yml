@@ -1,11 +1,10 @@
 name: Eslatma
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 3 * * *'
-  workflow_dispatch:
 jobs:
-  eslatma:
+  run:
     runs-on: ubuntu-latest
     steps:
-      - name: Xabar
-        run: curl -s "https://api.telegram.org/bot8535445836:AAHkniWDqi25cLPDutKQY5valMv_naeQ1PI/sendMessage?chat_id=244117895&text=Test+xabar+Murad+Jewellery"
+      - run: curl "https://api.telegram.org/bot8535445836:AAHkniWDqi25cLPDutKQY5valMv_naeQ1PI/sendMessage?chat_id=244117895&text=Salom+Murad"
