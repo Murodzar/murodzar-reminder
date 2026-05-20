@@ -1,18 +1,14 @@
-name: Telegram Reminder
-
+name: Eslatma
 on:
+  schedule:
+    - cron: '0 3 * * *'
   workflow_dispatch:
-
 jobs:
-  send-message:
+  eslatma:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Send Telegram Message
+      - name: Telegram xabar
         run: |
-          curl -s -X POST https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/sendMessage \
+          curl -s -X POST https://api.telegram.org/bot8535445836:AAHkniWDqi25cLPDutKQY5valMv_naeQ1PI/sendMessage \
           -H "Content-Type: application/json" \
-          -d '{
-            "chat_id": "${{ secrets.CHAT_ID }}",
-            "text": "GitHub Actions ishladi"
-          }'
+          -d '{"chat_id":"244117895","text":"💍 Murad Jewellery - Kunlik eslatma!\n\nBuyurtmalarni tekshiring:\nhttps://murodzar.netlify.app","parse_mode":"HTML"}'
