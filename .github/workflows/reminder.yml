@@ -1,17 +1,61 @@
-name: Murad Jewellery Eslatma
+name: Murad Jewellery Eslatmalar
 
 on:
   schedule:
-    - cron: '0 15 * * *'
+    - cron: '0 3 * * *'
+    - cron: '0 9 * * 1'
   workflow_dispatch:
 
 jobs:
-  send-reminder:
+  daily-reminder:
     runs-on: ubuntu-latest
     steps:
-      - name: Eslatma yuborish
+      - name: Kunlik eslatma
         run: |
           BOT_TOKEN="8535445836:AAHkniWDqi25cLPDutKQY5valMv_naeQ1PI"
           CHAT_ID="244117895"
-          MESSAGE="💍 Murad Jewellery — Kunlik Eslatma%0A%0ABugungi buyurtmalarni tekshiring!%0A🌐 murodzar.netlify.app"
-          curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" -d "chat_id=${CHAT_ID}&text=${MESSAGE}&parse_mode=Markdown"
+          SUPABASE_URL="https://rztbawzfeqqtpbifkgjd.supabase.co"
+          SUPABASE_KEY="sb_publishable_mF63LJOpb_lzR_P_WmmZEA_W5oc8JPD"
+          ORDERS=$(curl -s "${SUPABASE_URL}/rest/v1/orders?select=*&status=neq.topshirildi" -H "apikey: ${SUPABASE_KEY}" -H "Authorization: Bearer ${SUPABASE_KEY}")
+          TODAY=$(date +%Y-%m-%d)
+          TOMORROW=$(date -d '+1 day' +%Y-%m-%d)
+          python3 -c "
+import json,urllib.request
+orders=json.loads('''${ORDERS}''')
+bot='${BOT_TOKEN}'
+chat='${CHAT_ID}'
+today='${TODAY}'
+tomorrow='${TOMORROW}'
+def send(m):
+    d=json.dumps({'chat_id':chat,'text':m,'parse_mode':'Markdown'}).encode()
+    urllib.request.urlopen(urllib.request.Request('https://api.telegram.org/bot'+bot+'/sendMessage',d,{'Content-Type':'application/json'}))
+t=[o for o in orders if o.get('due_date')==today]
+tm=[o for o in orders if o.get('due_date')==tomorrow]
+lt=[o for o in orders if o.get('due_date') and o.get('due_date')<today]
+rd=[o for o in orders if o.get('status')=='tayyor']
+msg='💍 *Murad Jewellery — 08:00 Eslatma*\n📅 '+today+'\n\n'
+if t:
+    msg+='🔴 *BUGUN TOPSHIRISH ('+str(len(t))+' ta):*\n'
+    for o in t:
+        msg+='• *'+o.get('client','')+'*'
+        if o.get('metal_type'):msg+=' | '+o.get('metal_type')
+        if o.get('metal_gram'):msg+=' '+str(o.get('metal_gram'))+'g'
+        msg+='\n'
+        if o.get('phone'):msg+='  📞 '+o.get('phone')+'\n'
+if tm:
+    msg+='🟡 *ERTAGA ('+str(len(tm))+' ta):*\n'
+    for o in tm:
+        msg+='• *'+o.get('client','')+'*\n'
+if lt:
+    msg+='⚠️ *KECHIKKAN ('+str(len(lt))+' ta):*\n'
+    for o in lt:
+        msg+='• *'+o.get('client','')+'* — '+o.get('due_date','')+'\n'
+if rd:
+    msg+='✅ *TAYYOR KUTMOQDA ('+str(len(rd))+' ta):*\n'
+    for o in rd:
+        msg+='• *'+o.get('client','')+'*\n'
+if not t and not tm and not lt:
+    msg+='✅ Yaqin kunlarda topshirish yoq!\n'
+msg+='\n🌐 murodzar.netlify.app'
+send(msg)
+"
