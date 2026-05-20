@@ -6,67 +6,12 @@ on:
 jobs:
   eslatma:
     runs-on: ubuntu-latest
-    env:
-      BOT_TOKEN: "8535445836:AAHkniWDqi25cLPDutKQY5valMv_naeQ1PI"
-      CHAT_ID: "244117895"
-      SUPABASE_URL: "https://rztbawzfeqqtpbifkgjd.supabase.co"
-      SUPABASE_KEY: "sb_publishable_mF63LJOpb_lzR_P_WmmZEA_W5oc8JPD"
     steps:
+      - uses: actions/checkout@v3
       - name: Kunlik eslatma
-        run: |
-          ORDERS=$(curl -s "${SUPABASE_URL}/rest/v1/orders?select=*&status=neq.topshirildi" \
-            -H "apikey: ${SUPABASE_KEY}" \
-            -H "Authorization: Bearer ${SUPABASE_KEY}")
-          python3 - << PYEOF
-import json, urllib.request
-from datetime import datetime, timedelta
-import os
-
-try:
-    orders = json.loads('''${ORDERS}''')
-except:
-    orders = []
-
-bot = os.environ['BOT_TOKEN']
-chat = os.environ['CHAT_ID']
-today = datetime.now().strftime('%Y-%m-%d')
-tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
-
-def send(text):
-    url = f"https://api.telegram.org/bot{bot}/sendMessage"
-    data = json.dumps({"chat_id": chat, "text": text}).encode()
-    urllib.request.urlopen(urllib.request.Request(url, data, {"Content-Type": "application/json"}))
-
-bugun = [o for o in orders if o.get('due_date') == today]
-ertaga = [o for o in orders if o.get('due_date') == tomorrow]
-kechikkan = [o for o in orders if o.get('due_date') and o['due_date'] < today]
-tayyor = [o for o in orders if o.get('status') == 'tayyor']
-
-msg = f"Murad Jewellery - {today}\n\n"
-if bugun:
-    msg += f"BUGUN TOPSHIRISH ({len(bugun)} ta):\n"
-    for o in bugun:
-        msg += f"- {o.get('client','')}\n"
-        if o.get('metal_type'): msg += f"  {o['metal_type']}"
-        if o.get('metal_gram'): msg += f" {o['metal_gram']}g"
-        if o.get('metal_type') or o.get('metal_gram'): msg += "\n"
-        if o.get('phone'): msg += f"  Tel: {o['phone']}\n"
-        if o.get('remain'): msg += f"  Qoldiq: {int(o['remain'])} som\n"
-if ertaga:
-    msg += f"ERTAGA ({len(ertaga)} ta):\n"
-    for o in ertaga:
-        msg += f"- {o.get('client','')}\n"
-if kechikkan:
-    msg += f"KECHIKKAN ({len(kechikkan)} ta):\n"
-    for o in kechikkan:
-        msg += f"- {o.get('client','')} - {o.get('due_date','')}\n"
-if tayyor:
-    msg += f"TAYYOR-KUTMOQDA ({len(tayyor)} ta):\n"
-    for o in tayyor:
-        msg += f"- {o.get('client','')}\n"
-        if o.get('remain'): msg += f"  Qoldiq: {int(o['remain'])} som\n"
-if not bugun and not ertaga and not kechikkan:
-    msg += "Yaqin kunlarda topshirish yoq!\n"
-msg += "\nmurodzar.netlify.app"
-send(msg)
-PYEOF
+        run: python3 eslatma.py
+        env:
+          BOT_TOKEN: "8535445836:AAHkniWDqi25cLPDutKQY5valMv_naeQ1PI"
+          CHAT_ID: "244117895"
+          SUPABASE_URL: "https://rztbawzfeqqtpbifkgjd.supabase.co"
+          SUPABASE_KEY: "sb_publishable_mF63LJOpb_lzR_P_WmmZEA_W5oc8JPD"
