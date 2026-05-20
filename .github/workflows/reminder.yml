@@ -28,44 +28,45 @@ jobs:
           echo "$RESPONSE" > orders.json
 
           python3 << 'EOF'
-import json
-import urllib.request
-import os
-from datetime import datetime
 
-with open("orders.json", "r", encoding="utf-8") as f:
-    orders = json.load(f)
+          import json
+          import urllib.request
+          import os
+          from datetime import datetime
 
-today = datetime.utcnow().strftime("%Y-%m-%d")
+          with open("orders.json", "r", encoding="utf-8") as f:
+              orders = json.load(f)
 
-today_orders = [
-    o for o in orders
-    if o.get("due_date") == today
-]
+          today = datetime.utcnow().strftime("%Y-%m-%d")
 
-msg = f"💍 Murad Jewellery\n📅 {today}\n\n"
+          today_orders = [
+              o for o in orders
+              if o.get("due_date") == today
+          ]
 
-if today_orders:
-    msg += "🔴 Bugungi topshiruvlar:\n"
+          msg = f"💍 Murad Jewellery\n📅 {today}\n\n"
 
-    for o in today_orders:
-        client = o.get("client", "Noma'lum")
-        msg += f"• {client}\n"
+          if today_orders:
+              msg += "🔴 Bugungi topshiruvlar:\n"
 
-else:
-    msg += "✅ Bugun topshiruv yo'q"
+              for o in today_orders:
+                  client = o.get("client", "Noma'lum")
+                  msg += f"• {client}\n"
 
-data = json.dumps({
-    "chat_id": os.environ["CHAT_ID"],
-    "text": msg
-}).encode("utf-8")
+          else:
+              msg += "✅ Bugun topshiruv yo'q"
 
-req = urllib.request.Request(
-    f"https://api.telegram.org/bot{os.environ['BOT_TOKEN']}/sendMessage",
-    data=data,
-    headers={"Content-Type": "application/json"}
-)
+          data = json.dumps({
+              "chat_id": os.environ["CHAT_ID"],
+              "text": msg
+          }).encode("utf-8")
 
-urllib.request.urlopen(req)
+          req = urllib.request.Request(
+              f"https://api.telegram.org/bot{os.environ['BOT_TOKEN']}/sendMessage",
+              data=data,
+              headers={"Content-Type": "application/json"}
+          )
 
-EOF
+          urllib.request.urlopen(req)
+
+          EOF
