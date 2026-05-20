@@ -1,0 +1,17 @@
+name: Murad Jewellery Eslatma
+
+on:
+  schedule:
+    - cron: '0 15 * * *'
+  workflow_dispatch:
+
+jobs:
+  send-reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Eslatma yuborish
+        run: |
+          BOT_TOKEN="8535445836:AAHkniWDqi25cLPDutKQY5valMv_naeQ1PI"
+          CHAT_ID="244117895"
+          MESSAGE="💍 Murad Jewellery — Kunlik Eslatma%0A%0ABugungi buyurtmalarni tekshiring!%0A🌐 murodzar.netlify.app"
+          curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" -d "chat_id=${CHAT_ID}&text=${MESSAGE}&parse_mode=Markdown"
