@@ -1,0 +1,15 @@
+name: Eslatma
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+jobs:
+  eslatma:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Eslatma yuborish
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot8535445836:AAHkniWDqi25cLPDutKQY5valMv_naeQ1PI/sendMessage" \
+          -H "Content-Type: application/json" \
+          -d "{\"chat_id\":\"-1003998737387\",\"text\":\"💍 Murad Jewellery\\n📅 Kunlik eslatma\\n\\nBugungi buyurtmalarni tekshiring va yangilarini qabul qiling!\\n\\n🌐 murodzar.netlify.app\\n📞 +998 97 481-20-10\\n📞 +998 95 627-99-99\"}"
