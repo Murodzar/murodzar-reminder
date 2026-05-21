@@ -12,4 +12,4 @@ jobs:
         run: |
           curl -s -X POST "https://api.telegram.org/bot8535445836:AAHkniWDqi25cLPDutKQY5valMv_naeQ1PI/sendMessage" \
           -H "Content-Type: application/json" \
-          -d "{\"chat_id\":\"-800338592\",\"text\":\"Murad Jewellery - Kunlik Eslatma\\n\\nBugungi buyurtmalarni tekshiring:\\nhttps://murodzar.netlify.app\"}"
+          -d "{\"chat_id\":\"-1003998737387\",\"text\":\"Murad Jewellery - Kunlik Eslatma\\n\\nBugungi buyurtmalarni tekshiring:\\nhttps://murodzar.netlify.app\"}"
