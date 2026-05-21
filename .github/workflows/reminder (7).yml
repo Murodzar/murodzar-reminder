@@ -1,0 +1,13 @@
+name: Eslatma
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test
+        run: echo "ishlayapti"
