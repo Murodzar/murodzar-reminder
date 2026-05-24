@@ -1,0 +1,17 @@
+name: Eslatma
+on:
+  schedule:
+    - cron: '0 18 * * *'
+    - cron: '0 8 * * *'
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  eslatma:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kunlik eslatma
+        run: python3 eslatma.py
