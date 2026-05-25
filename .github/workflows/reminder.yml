@@ -19,6 +19,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Kunlik eslatma
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python3 eslatma.py
 
       - name: Repo faol saqlash
