@@ -27,10 +27,11 @@ jobs:
         run: python3 eslatma.py
 
       - name: Repo faol saqlash
+        continue-on-error: true
         run: |
           git config user.email "bot@murad.uz"
           git config user.name "Murad Bot"
           date > .last_run
           git add .last_run
           git diff --staged --quiet || git commit -m "run: $(date +%Y-%m-%d)"
-          git push
+          git push || echo "Push failed, continuing..."
