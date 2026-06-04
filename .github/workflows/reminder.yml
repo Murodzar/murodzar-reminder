@@ -1,10 +1,6 @@
 name: Eslatma
 
 on:
-  schedule:
-    - cron: '0 3 * * *'
-    - cron: '0 8 * * *'
-    - cron: '0 12 * * *'
   workflow_dispatch:
 
 permissions:
@@ -34,4 +30,4 @@ jobs:
           date > .last_run
           git add .last_run
           git diff --staged --quiet || git commit -m "run: $(date +%Y-%m-%d)"
-          git push || echo "Push failed, continuing..."
+          git push || echo "Push failed"
