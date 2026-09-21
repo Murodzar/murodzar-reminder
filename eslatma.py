@@ -175,7 +175,7 @@ if r_bugun or r_ertaga or r_tayyor or r_kechik or r_jarayonda:
         msg += f"Jarayonda: {r.get('client','')} - {r.get('item','')}\n"
     msg += "\n"
 
-msg += "murodzar.github.io"
+msg += "murodgold.com"
 tg(msg)
 
 # ===== YAKSHANBA: HAFTALIK HISOBOT + AVTOMATIK BACKUP =====
@@ -192,7 +192,7 @@ if weekday == 0:
     w += f"Ishda: {active} ta\n"
     if total: w += f"Summa: {fm(total)}\n"
     if qoldiq: w += f"Qoldiq tolovlar: {fm(qoldiq)}\n"
-    w += "\nmurodzar.github.io"
+    w += "\nmurodgold.com"
     tg(w)
 
     # Avtomatik backup - rasmlar va signature'siz
